@@ -1,6 +1,6 @@
 config.yml
-nakama/data/.cookie
+central/data/.cookie
 
-web-build/*
+web-build/src/*
 !web-build/.gitkeep
 
