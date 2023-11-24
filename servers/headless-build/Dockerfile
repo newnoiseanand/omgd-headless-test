@@ -29,4 +29,3 @@ RUN wget https://downloads.tuxfamily.org/godotengine/${GODOT_VERSION}/Godot_v${G
 
 WORKDIR /app
 
-CMD godot -v --server --main-pack game.pck

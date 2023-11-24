@@ -64,5 +64,6 @@ services:
     volumes:
       - ./headless-build:/app
     working_dir: /app
+    command: godot -v --server --main-pack game.pck
 volumes:
   data:
