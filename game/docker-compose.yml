@@ -36,4 +36,4 @@ services:
   build-x11-server:
     extends:
       service: build-root
-    command: sh -c "mkdir -v -p dist/x11-server-${BUILD_ENV} && godot -v --export-pack 'Linux/X11' dist/x11-server-${BUILD_ENV}/game-server-${BUILD_ENV}.pck"
+    command: sh -c "mkdir -v -p dist/x11-server-${BUILD_ENV} && godot -v --export-pack 'Linux/X11' dist/x11-server-${BUILD_ENV}/game.pck"
