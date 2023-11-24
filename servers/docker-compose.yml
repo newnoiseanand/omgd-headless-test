@@ -1,5 +1,6 @@
 version: '3'
 services:
+
   postgres:
     container_name: postgres
     image: postgres:12.2-alpine
@@ -19,7 +20,8 @@ services:
       interval: 3s
       timeout: 3s
       retries: 5
-  nakama:
+
+  central:
     container_name: nakama
     image: registry.heroiclabs.com/heroiclabs/nakama:3.18.0
     entrypoint:
@@ -49,7 +51,8 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-  client:
+
+  web:
     image: nginx
     ports:
       - 80:80
@@ -57,6 +60,7 @@ services:
       - ./web-build/nginx.conf:/etc/nginx/nginx.conf
       - ./web-build/apache.htpasswd:/etc/nginx/.htpasswd
       - ./web-build/src:/usr/share/nginx/html
+
   headless:
     build:
       context: ./headless-build
@@ -65,5 +69,6 @@ services:
       - ./headless-build:/app
     working_dir: /app
     command: godot -v --server --main-pack game.pck
+
 volumes:
   data:
