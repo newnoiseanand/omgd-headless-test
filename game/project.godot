@@ -115,6 +115,7 @@ GameConfig="*res://Autoloads/GameConfig.gd"
 SessionManager="*res://Autoloads/SessionManager.gd"
 PlayerManager="*res://Autoloads/PlayerManager.gd"
 PlayerEvent="*res://Autoloads/PlayerEvent.gd"
+HeadlessServer="*res://Autoloads/HeadlessServer.gd"
 
 [input]
 

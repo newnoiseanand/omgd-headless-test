@@ -9,14 +9,6 @@ onready var version_incorrect_modal: WindowDialog = $VersionIncorrect
 export var game_scene: PackedScene
 
 
-func _ready():
-	if "--server" in OS.get_cmdline_args():
-		# Run your server startup code here...
-		# Using this check, you can start a dedicated server by running
-		# a Godot binary (headless or not) with the `--server` command-line argument.
-		print_debug("Server")
-
-
 func username_text_changed(new_text: String):
 	username = new_text
 
