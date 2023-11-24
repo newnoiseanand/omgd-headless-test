@@ -1,3 +1,3 @@
 #!/bin/sh
 
-godot -v -d --main-pack game.pck --server
+godot -v -d --main-pack src/game.pck --server
