@@ -67,8 +67,11 @@ services:
       dockerfile: Dockerfile
     volumes:
       - ./headless-build:/app
+    ports:
+      - "9999:9999"
     working_dir: /app
-    command: godot -v --server --main-pack game.pck
+    entrypoint: /bin/sh -ecx /app/entrypoint.sh
+    tty: true
 
 volumes:
   data:
