@@ -1,4 +1,10 @@
 omgd:
+  game:
+    targets:
+      - build-mac
+      - build-web
+      # - build-x11-server
   servers:
-    central:
-      host: 127.0.0.1
+    services:
+    - central
+    - web
