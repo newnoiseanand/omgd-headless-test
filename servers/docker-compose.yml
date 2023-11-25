@@ -74,7 +74,7 @@ services:
       - "9999"
       - "9999/udp"
     working_dir: /app
-    entrypoint: /bin/sh -ecx /app/entrypoint.sh
+    command: godot -v -d --main-pack src/game.pck --server
     tty: true
 
 volumes:
