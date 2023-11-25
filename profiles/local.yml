@@ -1,10 +1,9 @@
 omgd:
   game:
     targets:
-      - build-mac
       - build-web
-      # - build-x11-server
+      - build-x11-server
   servers:
     services:
-    - central
     - web
+    - headless

@@ -2,10 +2,11 @@ omgd:
   game:
     targets:
     - build-web
+    - build-x11-server
   gcp:
     type: f1-micro
   servers:
     host: 34.139.119.250
     services:
-    - central
     - web
+    - headless
