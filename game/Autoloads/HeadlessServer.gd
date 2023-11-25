@@ -1,12 +1,7 @@
 extends Node
 
-
-# Declare member variables here. Examples:
-# var a = 2
-# var b = "text"
-
 const PORT = 9999
-const USE_WS = false
+const USE_WS = true
 
 
 func _ready():
