@@ -4,6 +4,10 @@ export var user_id: String
 
 var next_movement_point: Vector2
 
+func _ready():
+	var label: Label = find_node("UsernameLabel")
+	label.text = user_id
+
 
 func _enter_tree():
 	next_movement_point = position
