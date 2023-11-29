@@ -11,7 +11,6 @@ var player: Node2D
 
 func _ready():
 	window_size_setup()
-	_add_player_to_scene()
 
 
 func _exit_tree():
@@ -23,18 +22,6 @@ func _exit_tree():
 
 func no_children():
 	return get_child_count() == 0
-
-
-func _add_player_to_scene():
-	if player == null:
-		player = player_scene.instance()
-
-	player.position = player_entry_node.position
-	player.name = SessionManager.session.user_id
-	player.user_id = SessionManager.session.user_id
-	environment_items.call_deferred("add_child", player)
-	player.call_deferred("restrict_camera_to_tile_map", ground)
-	get_tree().root.emit_signal("size_changed")
 
 
 func window_size_setup():

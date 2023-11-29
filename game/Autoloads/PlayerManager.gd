@@ -2,6 +2,8 @@ extends Node
 
 const PORT = 9999
 const USE_WEBSOCKETS = true
+
+signal user_joined(id)
 signal player_joined(id)
 signal player_left(id)
 
@@ -76,6 +78,7 @@ func _exit_tree():
 func _client_connect_success():
 	print_debug("client connect to server success")
 	print_debug("player rpc id: ", get_network_id())
+	emit_signal("user_joined", get_network_id())
 
 
 func _client_connect_failed():
