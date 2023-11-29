@@ -2,14 +2,14 @@ extends "res://Character/CharacterController.gd"
 
 # icon from https://www.reddit.com/r/godot/comments/icagss/i_made_a_claylike_3d_desktop_icon_for_godot_ico/
 
-const INPUT_MOVE: int = 200
+const INPUT_MOVE: int = 20
 
 var map_constraints: Dictionary = {}
 
 onready var camera: Camera2D = $Camera2D
 
 
-func _unhandled_input(_event):
+func _physics_process(_delta):
 	var target = position
 
 	if Input.is_action_pressed("move_right"):
@@ -21,8 +21,8 @@ func _unhandled_input(_event):
 	if Input.is_action_pressed("move_up"):
 		target.y -= INPUT_MOVE
 
-	if target != Vector2.ZERO:
-		rpc("_move_event", target)
+	if (target.distance_to(position) > INPUT_MOVE - 5):
+		rpc_unreliable("_move_event", target)
 		_move_event(target)
 
 
