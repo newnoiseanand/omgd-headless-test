@@ -14,13 +14,11 @@ script = ExtResource( 2 )
 shape = SubResource( 1 )
 
 [node name="UsernameLabel" type="Label" parent="."]
-margin_left = -19.9179
-margin_top = -14.6206
-margin_right = 20.0821
-margin_bottom = -0.620594
-__meta__ = {
-"_edit_use_anchors_": false
-}
+margin_left = -19.0
+margin_top = -34.0
+margin_right = 21.0
+margin_bottom = -20.0
+align = 1
 
 [node name="Godot_icon" type="Sprite" parent="."]
 position = Vector2( -0.323273, -0.215964 )
