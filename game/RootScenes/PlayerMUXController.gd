@@ -81,7 +81,7 @@ remote func _add_character_to_scene(user_id: int, pos: Vector2 = Vector2.ZERO, r
 
 	var player_node = character_scene.instance()
 
-	player_node.set_network_master(PlayerManager.get_network_id())
+	player_node.set_network_master(user_id)
 	player_node.user_id = String(user_id)
 	player_node.name = String(user_id)
 	player_node.position = pos
