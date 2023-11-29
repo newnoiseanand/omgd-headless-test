@@ -5,7 +5,7 @@ const USE_WEBSOCKETS = true
 signal player_joined(id)
 signal player_left(id)
 
-func _is_server():
+func is_server():
 	return "--server" in OS.get_cmdline_args()
 
 
@@ -16,7 +16,7 @@ func get_network_id():
 func _ready():
 	var _gc
 
-	if _is_server():
+	if is_server():
 		print_debug("Server")
 
 		_gc = get_tree().connect("network_peer_connected", self, "_network_peer_connected")
@@ -36,7 +36,7 @@ func _ready():
 func _setup_network_peer_as_ws():
 	var peer
 
-	if _is_server():
+	if is_server():
 		peer = WebSocketServer.new()
 		peer.listen(PORT, PoolStringArray(), true)
 		print_debug("WS Server should be setup at port ", PORT)
@@ -52,7 +52,7 @@ func _setup_network_peer_as_ws():
 func _setup_network_peer_as_udp():
 	var peer
 
-	if _is_server():
+	if is_server():
 		peer = NetworkedMultiplayerENet.new()
 		peer.create_server(PORT, 8)
 		print_debug("UDP Server should be setup at port ", PORT)
@@ -65,7 +65,7 @@ func _setup_network_peer_as_udp():
 
 
 func _exit_tree():
-	if _is_server():
+	if is_server():
 		get_tree().disconnect("network_peer_connected", self, "_network_peer_connected")
 		get_tree().disconnect("network_peer_disconnected", self, "_network_peer_disconnected")
 	else:
