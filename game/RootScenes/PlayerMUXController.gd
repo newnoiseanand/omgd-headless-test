@@ -2,55 +2,88 @@ extends "res://RootScenes/RootController.gd"
 
 export var character_scene: PackedScene
 
-var channel_name = "player"
-
 var user_ids: Array = []
 
 
 func _ready():
-	user_ids.append(SessionManager.session.user_id)
+	var _gc
 
-	if channel_name != null && channel_name != '':
-		yield(PlayerManager.connect_socket(), "completed")
-		yield(_join_player(), "completed")
-		var _rm = PlayerManager.socket.connect("received_match_presence", self, "_on_match_presence")
-
+	if PlayerManager.is_server():
+		_gc = PlayerManager.connect("player_joined", self, "_add_networked_player_to_scene")
+		_gc = PlayerManager.connect("player_left", self, "_remove_networked_player_from_scene")
+	else:
+		_gc = PlayerManager.connect("user_joined", self, "_add_player_to_scene")
 
 
 func _exit_tree():
-	if PlayerManager.game_match != null:
-		PlayerManager.socket.disconnect("received_match_presence", self, "_on_match_presence")
-		PlayerManager.game_match = null
+	if PlayerManager.is_server():
+		PlayerManager.disconnect("player_joined", self, "_add_networked_player_to_scene")
+		PlayerManager.disconnect("player_left", self, "_remove_networked_player_from_scene")
+	else:
+		PlayerManager.disconnect("user_joined", self, "_add_player_to_scene")
 
 
-func _join_player():
-	var player_channel_object = yield(PlayerManager.find_or_create_match(channel_name, player_entry_node.position), "completed")
+func _add_player_to_scene(user_id: int):
+	user_ids.append(user_id)
 
-	for presence in player_channel_object.presences:
-		_handle_match_join_event(presence)
+	if player == null:
+		player = player_scene.instance()
 
+	# player.position = player_entry_node.position
+	player.name = String(user_id)
+	player.user_id = String(user_id)
+	player.set_network_master(PlayerManager.get_network_id())
 
-func _on_match_presence(match_event: NakamaRTAPI.MatchPresenceEvent):
-	for presence in match_event.leaves:
-		user_ids.erase(presence.user_id)
-		var user_to_erase = find_node(presence.user_id, true, false)
-		if user_to_erase != null:
-			user_to_erase.queue_free()
-
-	for presence in match_event.joins:
-		if presence.user_id != SessionManager.session.user_id:
-			_handle_match_join_event(presence)
+	environment_items.call_deferred("add_child", player)
+	player.call_deferred("restrict_camera_to_tile_map", ground)
+	# get_tree().root.emit_signal("size_changed")
 
 
-func _handle_match_join_event(presence):
-	user_ids.append(presence.user_id)
-	call_deferred("_add_networked_player_to_scene", presence.user_id, player_entry_node.position)
+puppet func _setup_users_on_join(_user_ids):
+	print_debug("_setup_users_on_join called")
+
+	for user_id in _user_ids:
+		_add_character_to_scene(user_id)
 
 
-func _add_networked_player_to_scene(user_id: String, position: Vector2):
+func _add_networked_player_to_scene(user_id: int):
+	print_debug("calling _add_networked_player_to_scene")
+
+	rpc_id(user_id, "_setup_users_on_join", user_ids)
+	rpc("_add_character_to_scene", user_id)
+	_add_character_to_scene(user_id)
+
+
+remote func _add_character_to_scene(user_id: int):
+	if (user_id == PlayerManager.get_network_id()): return
+
+	print_debug("calling _add_character_to_scene for user_id ", user_id)
+
+	user_ids.append(user_id)
+
 	var player_node = character_scene.instance()
 
-	player_node.user_id = user_id
-	player_node.position = position
+	player_node.set_network_master(PlayerManager.get_network_id())
+	player_node.user_id = String(user_id)
+	player_node.name = String(user_id)
 
 	environment_items.add_child(player_node)
+
+
+func _remove_networked_player_from_scene(user_id: int):
+	print_debug("calling _remove_networked_player_from_scene")
+
+	for uid in user_ids:
+		if uid != user_id:
+			rpc_id(uid, "_rid_networked_player", user_id)
+
+	_rid_networked_player(user_id)
+
+
+remote func _rid_networked_player(user_id: int):
+	print_debug("calling _rid_networked_player")
+
+	user_ids.erase(user_id)
+	environment_items.find_node(String(user_id), true, false).queue_free()
+
+

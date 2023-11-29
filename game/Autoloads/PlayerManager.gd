@@ -1,53 +1,99 @@
 extends Node
 
-var socket: NakamaSocket
-var game_match: NakamaRTAPI.Match
+const PORT = 9999
+const USE_WEBSOCKETS = true
+
+signal user_joined(id)
+signal player_joined(id)
+signal player_left(id)
+
+func is_server():
+	return "--server" in OS.get_cmdline_args()
 
 
-func connect_socket():
-	if socket != null:
-		return
-
-	socket = Nakama.create_socket_from(SessionManager.client)
-	yield(socket.connect_async(SessionManager.session), "completed")
-	var _cr = socket.connect("received_match_state", self, "_on_match_state")
-	var _cc = socket.connect("closed", self, "_on_socket_disconnect")
+func get_network_id():
+	return get_tree().get_network_unique_id()
 
 
-func find_or_create_match(label: String, starting_position: Vector2):
-	var response = yield(
-		SessionManager.rpc_async("find_or_create_player", "player_type"), "completed"
-	)
+func _ready():
+	var _gc
 
-	var match_id = response.payload.replace('"', "")
+	if is_server():
+		print_debug("Server")
 
-	var _match = yield(_join_match(match_id, label, starting_position), "completed")
-
-	return _match
-
-
-func leave_match():
-	if game_match != null:
-		yield(socket.leave_match_async(game_match.match_id), "completed")
-		game_match = null
+		_gc = get_tree().connect("network_peer_connected", self, "_network_peer_connected")
+		_gc = get_tree().connect("network_peer_disconnected", self, "_network_peer_disconnected")
 	else:
-		yield()
+		print_debug("Client")
+
+		_gc = get_tree().connect("connection_failed", self, "_client_connect_failed")
+		_gc = get_tree().connect("connected_to_server", self, "_client_connect_success")
+
+	if USE_WEBSOCKETS:
+		_setup_network_peer_as_ws()
+	else:
+		_setup_network_peer_as_udp()
 
 
-func _join_match(match_id: String, _label: String, _starting_position: Vector2) -> NakamaRTAPI.Match:
-	game_match = yield(socket.join_match_async(match_id), "completed")
+func _setup_network_peer_as_ws():
+	var peer
 
-	if game_match.is_exception():
-		print("An error occured attempting to join the match: %s" % game_match)
-		return
+	if is_server():
+		peer = WebSocketServer.new()
+		peer.listen(PORT, PoolStringArray(), true)
+		print_debug("WS Server should be setup at port ", PORT)
+	else:
+		peer = WebSocketClient.new();
+		var url = "ws://%s:%s" % [GameConfig.nakama_host, PORT]
+		print_debug("Attempting connection to ", url)
+		peer.connect_to_url(url, PoolStringArray(), true);
 
-	return game_match
+	get_tree().network_peer = peer
 
 
-func _on_match_state(state: NakamaRTAPI.MatchData):
-	PlayerEvent.handle_match_state_update(state)
+func _setup_network_peer_as_udp():
+	var peer
+
+	if is_server():
+		peer = NetworkedMultiplayerENet.new()
+		peer.create_server(PORT, 8)
+		print_debug("UDP Server should be setup at port ", PORT)
+	else:
+		peer = NetworkedMultiplayerENet.new()
+		print_debug("Attempting connection to ", GameConfig.nakama_host, " at port ", PORT)
+		peer.create_client(GameConfig.nakama_host, PORT)
+
+	get_tree().network_peer = peer
 
 
-func _on_socket_disconnect():
-	# TPLG.base_change_scene("res://RootScenes/Authentication/Authentication.tscn")
-	pass
+func _exit_tree():
+	if is_server():
+		get_tree().disconnect("network_peer_connected", self, "_network_peer_connected")
+		get_tree().disconnect("network_peer_disconnected", self, "_network_peer_disconnected")
+	else:
+		get_tree().disconnect("connection_failed", self, "_client_connect_failed")
+		get_tree().disconnect("connected_to_server", self, "_client_connect_success")
+
+
+func _client_connect_success():
+	print_debug("client connect to server success")
+	print_debug("player rpc id: ", get_network_id())
+	emit_signal("user_joined", get_network_id())
+
+
+func _client_connect_failed():
+	print_debug("client connect to server failed")
+
+
+func _network_peer_connected(id):
+	print_debug("network peer connected!")
+	emit_signal("player_joined", id)
+	print_debug(id)
+
+
+func _network_peer_disconnected(id):
+	print_debug("network peer disconnected!")
+	emit_signal("player_left", id)
+	print_debug(id)
+
+
