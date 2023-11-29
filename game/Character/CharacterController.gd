@@ -1,6 +1,9 @@
 extends KinematicBody2D
 
+class_name Character
+
 const SPEED: int = 250
+const DAMAGE_PER_BULLET: int = 10
 
 onready var target: Vector2 = position
 onready var icon = find_node("Godot_icon")
@@ -8,6 +11,7 @@ onready var chamber = find_node("Chamber")
 
 export var bullet_scene: PackedScene
 export var user_id: String
+export var starting_health: int = 50
 
 var velocity: Vector2
 
@@ -37,5 +41,12 @@ remote func _fire_event():
 	bullet.position = position
 	bullet.fired_from = PlayerManager.get_network_id()
 	get_parent().call_deferred("add_child", bullet)
+
+
+func take_damage():
+	starting_health -= DAMAGE_PER_BULLET
+
+	if starting_health <= 0:
+		queue_free()
 
 

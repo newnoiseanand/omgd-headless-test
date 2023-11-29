@@ -24,3 +24,9 @@ func _physics_process(delta):
 			queue_free()
 
 
+func _on_bullet_body_entered(body: Character):
+	if body.name != str(PlayerManager.get_network_id()):
+		body.take_damage()
+		queue_free()
+
+

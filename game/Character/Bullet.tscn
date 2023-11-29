@@ -21,3 +21,5 @@ margin_bottom = 11.1152
 rect_scale = Vector2( 1.03635, 1 )
 text = "*"
 align = 1
+
+[connection signal="body_entered" from="." to="." method="_on_bullet_body_entered"]
