@@ -73,7 +73,10 @@ remote func _add_character_to_scene(user_id: int):
 func _remove_networked_player_from_scene(user_id: int):
 	print_debug("calling _remove_networked_player_from_scene")
 
-	rpc("_rid_networked_player", user_id)
+	for uid in user_ids:
+		if uid != user_id:
+			rpc_id(uid, "_rid_networked_player", user_id)
+
 	_rid_networked_player(user_id)
 
 
