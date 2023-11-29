@@ -9,6 +9,13 @@ var map_constraints: Dictionary = {}
 onready var camera: Camera2D = $Camera2D
 
 
+func _unhandled_input(event):
+	if event is InputEventKey:
+		if Input.is_action_just_released("fire"):
+			rpc_unreliable("_fire_event")
+			_fire_event()
+
+
 func _physics_process(_delta):
 	var target = position
 
