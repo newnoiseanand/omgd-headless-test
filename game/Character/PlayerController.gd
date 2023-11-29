@@ -25,6 +25,13 @@ func _physics_process(_delta):
 		rpc_unreliable("_move_event", target)
 		_move_event(target)
 
+	if Input.is_action_pressed("rotate_right"):
+		rpc_unreliable("_rotate_event", -1.5 * _delta)
+		_rotate_event(-1.5 * _delta)
+	if Input.is_action_pressed("rotate_left"):
+		rpc_unreliable("_rotate_event", 1.5 * _delta)
+		_rotate_event(1.5 * _delta)
+
 
 func restrict_camera_to_tile_map(map: TileMap):
 	var limits: Rect2 = map.get_used_rect()
