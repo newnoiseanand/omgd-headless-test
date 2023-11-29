@@ -37,32 +37,42 @@ func _add_player_to_scene(user_id: int):
 	environment_items.call_deferred("add_child", player)
 
 
-puppet func _setup_users_on_join(_user_ids, _user_pos):
+puppet func _setup_users_on_join(_user_ids, _user_pos, _user_rots):
 	print_debug("_setup_users_on_join called")
 
 	var user_pos = JSON.parse(_user_pos).result
+	var user_rots = JSON.parse(_user_rots).result
 
 	for user_id in _user_ids:
 		var v2 = str2var("Vector2" + user_pos["p%s" % user_id])
+		var rot = int(user_rots["p%s" % user_id])
 
-		_add_character_to_scene(user_id, v2)
+		_add_character_to_scene(user_id, v2, rot)
 
 
 func _add_networked_player_to_scene(user_id: int):
 	print_debug("calling _add_networked_player_to_scene")
 
 	var user_pos = {}
+	var user_rots = {}
 
 	for player in environment_items.get_children():
 		user_pos["p%s" % player.name] = player.position
+		user_rots["p%s" % player.name] = player.icon.rotation_degrees
 
-	rpc_id(user_id, "_setup_users_on_join", user_ids, to_json(user_pos))
+	rpc_id(
+		user_id,
+		"_setup_users_on_join",
+		user_ids,
+		to_json(user_pos),
+		to_json(user_rots)
+	)
 
 	rpc("_add_character_to_scene", user_id)
 	_add_character_to_scene(user_id)
 
 
-remote func _add_character_to_scene(user_id: int, pos: Vector2 = Vector2.ZERO):
+remote func _add_character_to_scene(user_id: int, pos: Vector2 = Vector2.ZERO, rot: float = 0):
 	if (user_id == PlayerManager.get_network_id()): return
 
 	print_debug("calling _add_character_to_scene for user_id ", user_id)
@@ -75,6 +85,7 @@ remote func _add_character_to_scene(user_id: int, pos: Vector2 = Vector2.ZERO):
 	player_node.user_id = String(user_id)
 	player_node.name = String(user_id)
 	player_node.position = pos
+	player_node.rotation_degrees = rot
 
 	environment_items.add_child(player_node)
 
@@ -94,5 +105,3 @@ remote func _rid_networked_player(user_id: int):
 
 	user_ids.erase(user_id)
 	environment_items.find_node(String(user_id), true, false).queue_free()
-
-
