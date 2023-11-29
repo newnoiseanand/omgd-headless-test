@@ -1,36 +1,26 @@
 extends KinematicBody2D
 
+const SPEED: int = 150
+
+onready var target: Vector2 = position
+
+var velocity: Vector2
 export var user_id: String
 
-var next_movement_point: Vector2
 
 func _ready():
 	var label: Label = find_node("UsernameLabel")
 	label.text = user_id
 
 
-func _enter_tree():
-	next_movement_point = position
-	var _mc = PlayerEvent.connect("movement", self, "_handle_move_event")
+func _physics_process(_delta):
+	velocity = position.direction_to(target) * SPEED
+
+	if position.distance_to(target) > 5:
+		velocity = move_and_slide(velocity)
 
 
-func _exit_tree():
-	PlayerEvent.disconnect("movement", self, "_handle_move_event")
+remote func _move_event(args):
+	target = args
 
 
-func _handle_move_event(msg, presence):
-	if msg == null:
-		return
-
-	if presence.user_id != user_id:
-		return
-
-	var args = JSON.parse(msg).result
-	_move_event(args)
-
-
-func _move_event(args):
-	next_movement_point = Vector2(args.x, args.y)
-	var _ms = move_and_slide(next_movement_point)
-
-	update()
