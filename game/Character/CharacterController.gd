@@ -4,6 +4,7 @@ class_name Character
 
 const SPEED: int = 250
 const DAMAGE_PER_BULLET: int = 10
+const STARTING_HEALTH: int = 50
 
 onready var target: Vector2 = position
 onready var icon = find_node("Godot_icon")
@@ -11,8 +12,8 @@ onready var chamber = find_node("Chamber")
 
 export var bullet_scene: PackedScene
 export var user_id: String
-export var starting_health: int = 50
 
+var health: int = STARTING_HEALTH
 var velocity: Vector2
 
 
@@ -45,10 +46,10 @@ remote func _fire_event():
 
 
 func take_damage():
-	starting_health -= DAMAGE_PER_BULLET
+	health -= DAMAGE_PER_BULLET
 	print_debug("player ", name, " has been hit")
 
-	if PlayerManager.is_server() && starting_health <= 0:
+	if PlayerManager.is_server() && health <= 0:
 		print_debug("player ", name, " killed on server")
 		rpc("_player_killed")
 		_player_killed()
@@ -56,6 +57,9 @@ func take_damage():
 
 # TODO: This should disappear the player temporarily, turn off collisions as well, all on a timer
 remote func _player_killed():
-	queue_free()
+	visible = false
+	yield(get_tree().create_timer(3.0), "timeout")
+	health = STARTING_HEALTH
+	visible = true
 
 

@@ -25,7 +25,7 @@ func _physics_process(delta):
 
 
 func _on_bullet_body_entered(body: Character):
-	if body.name != str(fired_from):
+	if body.visible && body.name != str(fired_from):
 		body.take_damage()
 		queue_free()
 
