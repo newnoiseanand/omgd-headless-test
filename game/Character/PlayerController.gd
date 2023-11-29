@@ -2,31 +2,28 @@ extends "res://Character/CharacterController.gd"
 
 # icon from https://www.reddit.com/r/godot/comments/icagss/i_made_a_claylike_3d_desktop_icon_for_godot_ico/
 
-var map_constraints: Dictionary = {}
+const INPUT_MOVE: int = 200
 
-const MOVE_POSITION_FROM_BUTTON: int = 32
-const MOVE_DELAY_MINIMUM: float = .25
-const SPEED: int = 200
+var map_constraints: Dictionary = {}
 
 onready var camera: Camera2D = $Camera2D
 
 
-func _physics_process(_delta: float):
-	var velocity = Vector2()
+func _unhandled_input(_event):
+	var target = position
 
 	if Input.is_action_pressed("move_right"):
-		velocity.x += 1
+		target.x += INPUT_MOVE
 	if Input.is_action_pressed("move_left"):
-		velocity.x -= 1
+		target.x -= INPUT_MOVE
 	if Input.is_action_pressed("move_down"):
-		velocity.y += 1
+		target.y += INPUT_MOVE
 	if Input.is_action_pressed("move_up"):
-		velocity.y -= 1
+		target.y -= INPUT_MOVE
 
-	var target = velocity.normalized() * SPEED
-
-	if velocity != Vector2.ZERO:
-		PlayerEvent.movement({"x": target.x, "y": target.y})
+	if target != Vector2.ZERO:
+		rpc("_move_event", target)
+		_move_event(target)
 
 
 func restrict_camera_to_tile_map(map: TileMap):
@@ -42,3 +39,5 @@ func restrict_camera_to_tile_map(map: TileMap):
 	map_constraints["right"] = camera.limit_right
 	map_constraints["top"] = camera.limit_top
 	map_constraints["bottom"] = camera.limit_bottom
+
+
