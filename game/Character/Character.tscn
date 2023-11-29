@@ -1,16 +1,18 @@
-[gd_scene load_steps=4 format=2]
+[gd_scene load_steps=5 format=2]
 
 [ext_resource path="res://Character/Godot_icon.svg" type="Texture" id=1]
 [ext_resource path="res://Character/CharacterController.gd" type="Script" id=2]
+[ext_resource path="res://Character/Bullet.tscn" type="PackedScene" id=3]
 
-[sub_resource type="RectangleShape2D" id=1]
-extents = Vector2( 12.3733, 11.6746 )
+[sub_resource type="CircleShape2D" id=1]
 
 [node name="Character" type="KinematicBody2D"]
 collision_mask = 0
 script = ExtResource( 2 )
+bullet_scene = ExtResource( 3 )
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+scale = Vector2( 1.72, 1.6612 )
 shape = SubResource( 1 )
 
 [node name="UsernameLabel" type="Label" parent="."]
@@ -34,5 +36,14 @@ margin_bottom = 522.878
 rect_scale = Vector2( 24.3451, 20.92 )
 text = "||"
 align = 1
+
+[node name="Chamber" type="Node2D" parent="Godot_icon"]
+position = Vector2( 0, 641.63 )
+
+[node name="Bullet" parent="Godot_icon/Chamber" instance=ExtResource( 3 )]
+scale = Vector2( 24.3451, 20.92 )
+collision_layer = 0
+collision_mask = 0
+is_firing = false
 
 [node name="PositionComparator" type="Timer" parent="."]

@@ -7,6 +7,9 @@
 [node name="Player" instance=ExtResource( 1 )]
 script = ExtResource( 3 )
 
+[node name="CollisionShape2D" parent="." index="0"]
+scale = Vector2( 2.12, 1.9812 )
+
 [node name="Godot_icon" parent="." index="2"]
 texture = ExtResource( 2 )
 
