@@ -35,26 +35,34 @@ func _add_player_to_scene(user_id: int):
 	player.set_network_master(PlayerManager.get_network_id())
 
 	environment_items.call_deferred("add_child", player)
-	player.call_deferred("restrict_camera_to_tile_map", ground)
-	# get_tree().root.emit_signal("size_changed")
 
 
-puppet func _setup_users_on_join(_user_ids):
+puppet func _setup_users_on_join(_user_ids, _user_pos):
 	print_debug("_setup_users_on_join called")
 
+	var user_pos = JSON.parse(_user_pos).result
+
 	for user_id in _user_ids:
-		_add_character_to_scene(user_id)
+		var v2 = str2var("Vector2" + user_pos["p%s" % user_id])
+
+		_add_character_to_scene(user_id, v2)
 
 
 func _add_networked_player_to_scene(user_id: int):
 	print_debug("calling _add_networked_player_to_scene")
 
-	rpc_id(user_id, "_setup_users_on_join", user_ids)
+	var user_pos = {}
+
+	for player in environment_items.get_children():
+		user_pos["p%s" % player.name] = player.position
+
+	rpc_id(user_id, "_setup_users_on_join", user_ids, to_json(user_pos))
+
 	rpc("_add_character_to_scene", user_id)
 	_add_character_to_scene(user_id)
 
 
-remote func _add_character_to_scene(user_id: int):
+remote func _add_character_to_scene(user_id: int, pos: Vector2 = Vector2.ZERO):
 	if (user_id == PlayerManager.get_network_id()): return
 
 	print_debug("calling _add_character_to_scene for user_id ", user_id)
@@ -66,6 +74,7 @@ remote func _add_character_to_scene(user_id: int):
 	player_node.set_network_master(PlayerManager.get_network_id())
 	player_node.user_id = String(user_id)
 	player_node.name = String(user_id)
+	player_node.position = pos
 
 	environment_items.add_child(player_node)
 
