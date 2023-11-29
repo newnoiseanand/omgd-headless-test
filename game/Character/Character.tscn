@@ -18,11 +18,21 @@ margin_left = -19.0
 margin_top = -34.0
 margin_right = 21.0
 margin_bottom = -20.0
+grow_horizontal = 2
 align = 1
 
 [node name="Godot_icon" type="Sprite" parent="."]
 position = Vector2( -0.323273, -0.215964 )
 scale = Vector2( 0.0451975, 0.0451975 )
 texture = ExtResource( 1 )
+
+[node name="Label" type="Label" parent="Godot_icon"]
+margin_left = -486.753
+margin_top = 508.878
+margin_right = -446.753
+margin_bottom = 522.878
+rect_scale = Vector2( 24.3451, 20.92 )
+text = "||"
+align = 1
 
 [node name="PositionComparator" type="Timer" parent="."]
