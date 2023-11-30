@@ -1,18 +1,26 @@
-extends "res://RootScenes/RootController.gd"
+extends Node2D
 
 export var character_scene: PackedScene
+export var player_scene: PackedScene
 
+onready var player_entry_node: Node2D = find_node("PlayerEntry")
+onready var environment_items = find_node("EnvironmentItems")
+onready var ground = find_node("Ground")
+
+var player: Node2D
 var user_ids: Array = []
 
 
 func _ready():
-	var _gc
+	var _gc # NOTE: avoiding code warnings with a dummy var
 
 	if PlayerManager.is_server():
 		_gc = PlayerManager.connect("player_joined", self, "_add_networked_player_to_scene")
 		_gc = PlayerManager.connect("player_left", self, "_remove_networked_player_from_scene")
 	else:
 		_gc = PlayerManager.connect("user_joined", self, "_add_player_to_scene")
+		OS.min_window_size = Vector2(1280, 720)
+		_gc = get_tree().root.connect("size_changed", self, "_on_window_resize")
 
 
 func _exit_tree():
@@ -21,6 +29,7 @@ func _exit_tree():
 		PlayerManager.disconnect("player_left", self, "_remove_networked_player_from_scene")
 	else:
 		PlayerManager.disconnect("user_joined", self, "_add_player_to_scene")
+		get_tree().root.disconnect("size_changed", self, "on_window_resize")
 
 
 func _add_player_to_scene(user_id: int):
@@ -56,9 +65,9 @@ func _add_networked_player_to_scene(user_id: int):
 	var user_pos = {}
 	var user_rots = {}
 
-	for player in environment_items.get_children():
-		user_pos["p%s" % player.name] = player.position
-		user_rots["p%s" % player.name] = player.icon.rotation_degrees
+	for existing_player in environment_items.get_children():
+		user_pos["p%s" % existing_player.name] = existing_player.position
+		user_rots["p%s" % existing_player.name] = existing_player.icon.rotation_degrees
 
 	rpc_id(
 		user_id,
@@ -105,5 +114,15 @@ remote func _rid_networked_player(user_id: int):
 
 	user_ids.erase(user_id)
 	environment_items.find_node(String(user_id), true, false).queue_free()
+
+
+func _on_window_resize():
+	var vp = get_viewport()
+
+	if vp == null:
+		return
+
+	vp.set_size_override(true, Vector2(OS.window_size.x, OS.window_size.y))
+	vp.size_override_stretch = true
 
 
