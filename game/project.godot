@@ -26,7 +26,6 @@ config/icon="res://icon.png"
 
 [autoload]
 
-Nakama="*res://addons/com.heroiclabs.nakama/Nakama.gd"
 GameConfig="*res://Autoloads/GameConfig.gd"
 PlayerManager="*res://Autoloads/PlayerManager.gd"
 
