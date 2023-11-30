@@ -37,13 +37,13 @@ func _add_player_to_scene(user_id: int):
 	environment_items.call_deferred("add_child", player)
 
 
-puppet func _setup_users_on_join(_user_ids, _user_pos, _user_rots):
+puppet func _setup_users_on_join(user_ids_from_server, user_pos_json, user_rots_json):
 	print_debug("_setup_users_on_join called")
 
-	var user_pos = JSON.parse(_user_pos).result
-	var user_rots = JSON.parse(_user_rots).result
+	var user_pos = JSON.parse(user_pos_json).result
+	var user_rots = JSON.parse(user_rots_json).result
 
-	for user_id in _user_ids:
+	for user_id in user_ids_from_server:
 		var v2 = str2var("Vector2" + user_pos["p%s" % user_id])
 		var rot = int(user_rots["p%s" % user_id])
 

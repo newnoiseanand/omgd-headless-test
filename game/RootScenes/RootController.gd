@@ -46,3 +46,5 @@ func on_window_resize():
 			camera.offset = Vector2(int((OS.window_size.x - width) / 2), 0)
 		else:
 			camera.offset = Vector2()
+
+

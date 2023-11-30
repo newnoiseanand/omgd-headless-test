@@ -16,7 +16,7 @@ func _unhandled_input(event):
 			_fire_event()
 
 
-func _physics_process(_delta):
+func _physics_process(delta):
 	var target = position
 
 	if Input.is_action_pressed("move_right"):
@@ -33,11 +33,11 @@ func _physics_process(_delta):
 		_move_event(target)
 
 	if Input.is_action_pressed("rotate_right"):
-		rpc_unreliable("_rotate_event", -1.5 * _delta)
-		_rotate_event(-1.5 * _delta)
+		rpc_unreliable("_rotate_event", -1.5 * delta)
+		_rotate_event(-1.5 * delta)
 	if Input.is_action_pressed("rotate_left"):
-		rpc_unreliable("_rotate_event", 1.5 * _delta)
-		_rotate_event(1.5 * _delta)
+		rpc_unreliable("_rotate_event", 1.5 * delta)
+		_rotate_event(1.5 * delta)
 
 
 func restrict_camera_to_tile_map(map: TileMap):

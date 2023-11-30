@@ -7,6 +7,7 @@ signal user_joined(id)
 signal player_joined(id)
 signal player_left(id)
 
+
 func is_server():
 	return "--server" in OS.get_cmdline_args()
 
