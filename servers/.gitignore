@@ -3,5 +3,5 @@ central/data/.cookie
 
 web-build/src/*
 
-headless-build/src/*
+dedicated-build/src/*
 
