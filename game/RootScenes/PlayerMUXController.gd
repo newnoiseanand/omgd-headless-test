@@ -85,7 +85,7 @@ remote func _add_character_to_scene(user_id: int, pos: Vector2 = Vector2.ZERO, r
 	player_node.user_id = String(user_id)
 	player_node.name = String(user_id)
 	player_node.position = pos
-	player_node.rotation_degrees = rot
+	player_node.find_node("Godot_icon").rotation_degrees = rot
 
 	environment_items.add_child(player_node)
 
@@ -105,3 +105,5 @@ remote func _rid_networked_player(user_id: int):
 
 	user_ids.erase(user_id)
 	environment_items.find_node(String(user_id), true, false).queue_free()
+
+
