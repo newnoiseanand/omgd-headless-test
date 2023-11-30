@@ -61,12 +61,12 @@ services:
       - ./web-build/apache.htpasswd:/etc/nginx/.htpasswd
       - ./web-build/src:/usr/share/nginx/html
 
-  headless:
+  dedicated:
     build:
-      context: ./headless-build
+      context: ./dedicated-build
       dockerfile: Dockerfile
     volumes:
-      - ./headless-build:/app
+      - ./dedicated-build:/app
     ports:
       - "9999:9999"
       - "9999:9999/udp"

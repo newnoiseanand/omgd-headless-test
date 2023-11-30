@@ -6,4 +6,4 @@ omgd:
   servers:
     services:
     - web
-    - headless
+    - dedicated
