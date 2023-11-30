@@ -1,8 +1,8 @@
 omgd:
   game:
     targets:
-      - build-web
-      - build-x11-server
+    - build-web
+    - build-x11-server
   servers:
     services:
     - web
