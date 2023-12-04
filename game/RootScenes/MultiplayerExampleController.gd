@@ -3,9 +3,7 @@ extends Node2D
 export var character_scene: PackedScene
 export var player_scene: PackedScene
 
-onready var player_entry_node: Node2D = find_node("PlayerEntry")
 onready var environment_items = find_node("EnvironmentItems")
-onready var ground = find_node("Ground")
 
 var player: Node2D
 var user_ids: Array = []
@@ -14,21 +12,21 @@ var user_ids: Array = []
 func _ready():
 	var _gc # NOTE: avoiding code warnings with a dummy var
 
-	if PlayerManager.is_server():
-		_gc = PlayerManager.connect("player_joined", self, "_add_networked_player_to_scene")
-		_gc = PlayerManager.connect("player_left", self, "_remove_networked_player_from_scene")
+	if ServerManager.is_server():
+		_gc = ServerManager.connect("player_joined", self, "_add_networked_player_to_scene")
+		_gc = ServerManager.connect("player_left", self, "_remove_networked_player_from_scene")
 	else:
-		_gc = PlayerManager.connect("user_joined", self, "_add_player_to_scene")
+		_gc = ServerManager.connect("user_joined", self, "_add_player_to_scene")
 		OS.min_window_size = Vector2(1280, 720)
 		_gc = get_tree().root.connect("size_changed", self, "_on_window_resize")
 
 
 func _exit_tree():
-	if PlayerManager.is_server():
-		PlayerManager.disconnect("player_joined", self, "_add_networked_player_to_scene")
-		PlayerManager.disconnect("player_left", self, "_remove_networked_player_from_scene")
+	if ServerManager.is_server():
+		ServerManager.disconnect("player_joined", self, "_add_networked_player_to_scene")
+		ServerManager.disconnect("player_left", self, "_remove_networked_player_from_scene")
 	else:
-		PlayerManager.disconnect("user_joined", self, "_add_player_to_scene")
+		ServerManager.disconnect("user_joined", self, "_add_player_to_scene")
 		get_tree().root.disconnect("size_changed", self, "on_window_resize")
 
 
@@ -38,10 +36,9 @@ func _add_player_to_scene(user_id: int):
 	if player == null:
 		player = player_scene.instance()
 
-	# player.position = player_entry_node.position
 	player.name = String(user_id)
 	player.user_id = String(user_id)
-	player.set_network_master(PlayerManager.get_network_id())
+	player.set_network_master(ServerManager.get_network_id())
 
 	environment_items.call_deferred("add_child", player)
 
@@ -82,7 +79,7 @@ func _add_networked_player_to_scene(user_id: int):
 
 
 remote func _add_character_to_scene(user_id: int, pos: Vector2 = Vector2.ZERO, rot: float = 0):
-	if (user_id == PlayerManager.get_network_id()): return
+	if (user_id == ServerManager.get_network_id()): return
 
 	print_debug("calling _add_character_to_scene for user_id ", user_id)
 
