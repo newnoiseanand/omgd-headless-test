@@ -45,7 +45,7 @@ func _setup_network_peer_as_ws():
 		print_debug("WS Server should be setup at port ", PORT)
 	else:
 		peer = WebSocketClient.new();
-		var url = "ws://%s:%s" % [ServerConfig.nakama_host, PORT]
+		var url = "ws://%s:%s" % [ServerConfig.dedicated_server_host, PORT]
 		print_debug("Attempting connection to ", url)
 		peer.connect_to_url(url, PoolStringArray(), true);
 
@@ -61,8 +61,8 @@ func _setup_network_peer_as_udp():
 		print_debug("UDP Server should be setup at port ", PORT)
 	else:
 		peer = NetworkedMultiplayerENet.new()
-		print_debug("Attempting connection to ", ServerConfig.nakama_host, " at port ", PORT)
-		peer.create_client(ServerConfig.nakama_host, PORT)
+		print_debug("Attempting connection to ", ServerConfig.dedicated_server_host, " at port ", PORT)
+		peer.create_client(ServerConfig.dedicated_server_host, PORT)
 
 	get_tree().network_peer = peer
 
