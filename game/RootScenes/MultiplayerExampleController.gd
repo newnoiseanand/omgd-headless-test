@@ -1,26 +1,30 @@
-extends "res://RootScenes/RootController.gd"
+extends Node2D
 
 export var character_scene: PackedScene
+export var player_scene: PackedScene
 
+onready var environment_items = find_node("EnvironmentItems")
+
+var player: Node2D
 var user_ids: Array = []
 
 
 func _ready():
-	var _gc
+	var _gc # NOTE: avoiding code warnings with a dummy var
 
-	if PlayerManager.is_server():
-		_gc = PlayerManager.connect("player_joined", self, "_add_networked_player_to_scene")
-		_gc = PlayerManager.connect("player_left", self, "_remove_networked_player_from_scene")
+	if ServerManager.is_server():
+		_gc = ServerManager.connect("player_joined", self, "_add_networked_player_to_scene")
+		_gc = ServerManager.connect("player_left", self, "_remove_networked_player_from_scene")
 	else:
-		_gc = PlayerManager.connect("user_joined", self, "_add_player_to_scene")
+		_gc = ServerManager.connect("user_joined", self, "_add_player_to_scene")
 
 
 func _exit_tree():
-	if PlayerManager.is_server():
-		PlayerManager.disconnect("player_joined", self, "_add_networked_player_to_scene")
-		PlayerManager.disconnect("player_left", self, "_remove_networked_player_from_scene")
+	if ServerManager.is_server():
+		ServerManager.disconnect("player_joined", self, "_add_networked_player_to_scene")
+		ServerManager.disconnect("player_left", self, "_remove_networked_player_from_scene")
 	else:
-		PlayerManager.disconnect("user_joined", self, "_add_player_to_scene")
+		ServerManager.disconnect("user_joined", self, "_add_player_to_scene")
 
 
 func _add_player_to_scene(user_id: int):
@@ -29,21 +33,20 @@ func _add_player_to_scene(user_id: int):
 	if player == null:
 		player = player_scene.instance()
 
-	# player.position = player_entry_node.position
 	player.name = String(user_id)
 	player.user_id = String(user_id)
-	player.set_network_master(PlayerManager.get_network_id())
+	player.set_network_master(ServerManager.get_network_id())
 
 	environment_items.call_deferred("add_child", player)
 
 
-puppet func _setup_users_on_join(_user_ids, _user_pos, _user_rots):
+puppet func _setup_users_on_join(user_ids_from_server, user_pos_json, user_rots_json):
 	print_debug("_setup_users_on_join called")
 
-	var user_pos = JSON.parse(_user_pos).result
-	var user_rots = JSON.parse(_user_rots).result
+	var user_pos = JSON.parse(user_pos_json).result
+	var user_rots = JSON.parse(user_rots_json).result
 
-	for user_id in _user_ids:
+	for user_id in user_ids_from_server:
 		var v2 = str2var("Vector2" + user_pos["p%s" % user_id])
 		var rot = int(user_rots["p%s" % user_id])
 
@@ -56,9 +59,9 @@ func _add_networked_player_to_scene(user_id: int):
 	var user_pos = {}
 	var user_rots = {}
 
-	for player in environment_items.get_children():
-		user_pos["p%s" % player.name] = player.position
-		user_rots["p%s" % player.name] = player.icon.rotation_degrees
+	for existing_player in environment_items.get_children():
+		user_pos["p%s" % existing_player.name] = existing_player.position
+		user_rots["p%s" % existing_player.name] = existing_player.icon.rotation_degrees
 
 	rpc_id(
 		user_id,
@@ -73,7 +76,7 @@ func _add_networked_player_to_scene(user_id: int):
 
 
 remote func _add_character_to_scene(user_id: int, pos: Vector2 = Vector2.ZERO, rot: float = 0):
-	if (user_id == PlayerManager.get_network_id()): return
+	if (user_id == ServerManager.get_network_id()): return
 
 	print_debug("calling _add_character_to_scene for user_id ", user_id)
 

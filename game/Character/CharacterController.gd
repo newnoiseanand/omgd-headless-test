@@ -11,7 +11,8 @@ onready var icon = find_node("Godot_icon")
 onready var chamber = find_node("Chamber")
 
 export var bullet_scene: PackedScene
-export var user_id: String
+
+var user_id: String
 
 var health: int = STARTING_HEALTH
 var velocity: Vector2
@@ -49,7 +50,7 @@ func take_damage():
 	health -= DAMAGE_PER_BULLET
 	print_debug("player ", name, " has been hit")
 
-	if PlayerManager.is_server() && health <= 0:
+	if ServerManager.is_server() && health <= 0:
 		print_debug("player ", name, " killed on server")
 		rpc("_player_killed")
 		_player_killed()

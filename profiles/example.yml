@@ -9,4 +9,4 @@ omgd:
     host: 34.139.119.250
     services:
     - web
-    - headless
+    - dedicated
