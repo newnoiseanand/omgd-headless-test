@@ -17,8 +17,6 @@ func _ready():
 		_gc = ServerManager.connect("player_left", self, "_remove_networked_player_from_scene")
 	else:
 		_gc = ServerManager.connect("user_joined", self, "_add_player_to_scene")
-		OS.min_window_size = Vector2(1280, 720)
-		_gc = get_tree().root.connect("size_changed", self, "_on_window_resize")
 
 
 func _exit_tree():
@@ -27,7 +25,6 @@ func _exit_tree():
 		ServerManager.disconnect("player_left", self, "_remove_networked_player_from_scene")
 	else:
 		ServerManager.disconnect("user_joined", self, "_add_player_to_scene")
-		get_tree().root.disconnect("size_changed", self, "on_window_resize")
 
 
 func _add_player_to_scene(user_id: int):
@@ -111,15 +108,5 @@ remote func _rid_networked_player(user_id: int):
 
 	user_ids.erase(user_id)
 	environment_items.find_node(String(user_id), true, false).queue_free()
-
-
-func _on_window_resize():
-	var vp = get_viewport()
-
-	if vp == null:
-		return
-
-	vp.set_size_override(true, Vector2(OS.window_size.x, OS.window_size.y))
-	vp.size_override_stretch = true
 
 
